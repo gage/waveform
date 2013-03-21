@@ -119,7 +119,7 @@ int main(int argc, char * argv[]) {
 
     long long sample_range = (long long) SOX_SAMPLE_MAX - (long long) SOX_SAMPLE_MIN;
 
-    int center_y = image_height / 2;
+    int center_y = 0;//image_height / 2;
 
     FILE * png_file;
     if (strcmp(out_file_path, "-") == 0) {
@@ -186,8 +186,8 @@ int main(int argc, char * argv[]) {
         // compute the foreground color at each y pixel
         int i;
         for (i = 0; i < 4; ++i) {
-            float amt = abs(y - center_y) / center_y_float;
-            color_at_pix[4*y + i] = (1-amt) * color_center[i] + amt * color_outer[i];
+            float amt = y/image_height;//abs(y - center_y) / center_y_float;
+            color_at_pix[4*y + i] = amt * color_center[i] + (1-amt) * color_outer[i];
         }
     }
 
@@ -229,17 +229,17 @@ int main(int argc, char * argv[]) {
         int four_x = 4 * x;
 
         // top bg 
-        for (; y < y_min; ++y) {
+        for (; y < image_height-y_max+y_min; ++y) {
             memcpy(row_pointers[y] + four_x, color_bg, 4);
         }
         // top and bottom wave
-        for (; y <= y_max; ++y) {
+        for (; y < image_height; ++y) {
             memcpy(row_pointers[y] + four_x, color_at_pix + 4*y, 4);
         }
         // bottom bg
-        for (; y < image_height; ++y) {
-            memcpy(row_pointers[y] + four_x, color_bg, 4);
-        }
+        //for (; y < image_height; ++y) {
+        //    memcpy(row_pointers[y] + four_x, color_bg, 4);
+        //}
     }
 
     png_write_image(png, row_pointers);
